@@ -45,6 +45,7 @@ def crawling(soup,cate):
         dictlist.append(dictionary(cate,rank,name,price,image,rate))
     return dictlist
 
+
 request()
 
 
