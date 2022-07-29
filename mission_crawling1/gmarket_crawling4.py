@@ -17,6 +17,7 @@ def getall(url,cate):
         image = soup.select_one('#gBestWrap > div > div:nth-child(5) > div > ul > li:nth-child('+str(i)+') > div.thumb > a > img')['data-original']
         try:
             rate = soup.select_one('#gBestWrap > div > div:nth-child(5) > div > ul > li:nth-child('+str(i)+') > div.item_price > div.s-price > span > em').text.strip('%')
+
             rate = float(rate)
         except:
             rate = 0

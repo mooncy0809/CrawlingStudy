@@ -1,9 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+from pprint import pprint
 
 def request():
     url = ["http://corners.gmarket.co.kr/Bestsellers"]
+    results =[]
     for i in range(1, 10):
         url.append("http://corners.gmarket.co.kr/Bestsellers?viewType=G&groupCode=G0" + str(i))
     for i in range(10, 13):
@@ -13,8 +15,8 @@ def request():
         response = requests.get(url[i])
         html = response.text
         soup = BeautifulSoup(html, 'html.parser')
-        print(crawling(soup, cate[i]))
-
+        results.append(crawling(soup, cate[i]))
+    pprint(results)
 
 def dictionary(cate,rank,name,price,image,rate):
     temp_dict = {
@@ -31,7 +33,7 @@ def dictionary(cate,rank,name,price,image,rate):
 
 def crawling(soup,cate):
     dictlist=[]
-    for i in range(1, 10):
+    for i in range(1, 101):
         rank = soup.select_one('#no' + str(i)).text
         name = soup.select_one('#gBestWrap > div > div:nth-child(5) > div > ul > li:nth-child(' + str(i) + ') > a').text
         price = soup.select_one('#gBestWrap > div > div:nth-child(5) > div > ul > li:nth-child('+str(i)+') > div.item_price > div.s-price > strong > span > span').text.strip('원')
