@@ -48,13 +48,13 @@ def crawler(cate,sub_cate):
         ranking = el.find('span', attrs={"class": "best"}).text
         name = el.find('div', attrs={"class": "pname"}).find('p').text
         image = el.find('div', attrs={"class": "img_plot"}).find('img')['src']
-        sales_price = el.find('strong', attrs={"class": "sale_price"}).text
+        sales_price = el.find('span', attrs={"class": "price_detail"}).find('strong').text
         sales_price = int(sales_price.replace(',', ''))
         cate = cate
         try:
             rate = el.find('span', attrs={"class": "sale"}).text.strip('%')
             rate = float(rate)
-        except:
+        except:#bestPrdList > div:nth-child(2) > ul > li >
             rate = 0
         temp_dict['crawling_date'] = crawling_date
         temp_dict['market_name'] = market_name
@@ -87,8 +87,8 @@ def execute():
             pass
         else:
             sub_category_lists = driver.find_elements_by_xpath('//*[@id="metaCtgrLi' + str(button_index) + '"]/div/ul/li/a')
-            for a_index in range(1,len(sub_category_lists)):
-                sub_category = driver.find_element_by_xpath('//*[@id="metaCtgrLi' + str(button_index) + '"]/div/ul/li['+str(a_index)+']/a') # 서브 카테고리 find
+            for a_index in range(1,len(sub_category_lists)+1):
+                sub_category = driver.find_element_by_xpath('//*[@id="metaCtgrLi' + str(button_index) + '"]/div/ul/li['+str(a_index)+']/a') # 서브 카테고리
                 sub_cate = sub_category.text
                 sub_category.click() # 서브 카테고리 클릭하여 페이지 이동
                 time.sleep(1)
