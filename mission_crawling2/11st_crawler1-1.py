@@ -3,6 +3,7 @@ from selenium.webdriver.chrome.options import Options # Chrome WebDriver의 옵�
 from datetime import datetime
 from pprint import pprint
 import time
+import MySQLdb
 
 from selenium.webdriver.common.by import By
 
@@ -10,7 +11,7 @@ url = 'https://www.11st.co.kr/browsing/BestSeller.tmall?method=getBestSellerMain
 driver_path = '/usr/local/bin/chromedriver'
 
 chrome_options = Options()
-# chrome_options.add_argument('--headless') # [ --headless ]: WebDriver를 Browser 없이 실행하는 옵션.
+chrome_options.add_argument('--headless') # [ --headless ]: WebDriver를 Browser 없이 실행하는 옵션.
 chrome_options.add_argument( '--log-level=3' ) # Chroem Browser의 로그 레벨을 낮추는 옵션.
 chrome_options.add_argument( '--disable-logging' ) # 로그를 남기지 않는 옵션.
 chrome_options.add_argument( '--no-sandbox' ) #샌드박스 사용 안함.
@@ -46,6 +47,7 @@ def crawler(cate):
         ranking = ranking.text
         name = el.find_element_by_xpath('div/a/div[2]/p')
         name = name.text
+        name = name.replace('"','')
         image = el.find_element_by_xpath('div/a/div[1]/img')
         image = image.get_attribute('src')
         sales_price = el.find_element_by_xpath('div/a/div[2]/div[1]/span/strong')
@@ -67,6 +69,9 @@ def crawler(cate):
         temp_dict['image_path'] = image
         temp_dict['sales_rate'] = '%.2f' % rate
 
+        print(temp_dict)
+        cursor.execute(f"INSERT INTO 11st01 VALUES(\"{temp_dict['crawling_date']}\",\"{temp_dict['market_name']}\",\"{temp_dict['category_name']}\",\"{temp_dict['ranking']}\",\"{temp_dict['product_name']}\",\"{temp_dict['sales_price']}\",\"{temp_dict['image_path']}\",\"{temp_dict['sales_rate']}\")")
+
         results.append(temp_dict.copy())
 
     return results
@@ -86,5 +91,17 @@ def execute():
         scroll_up_to_category()
     return all_result
 
-all_results = execute()
-pprint(f"all_results : {all_results}")
+conn = MySQLdb.connect(
+    user="crawl_usr",
+    passwd="0809",
+    host="localhost",
+    db="crawl_data"
+)
+
+cursor = conn.cursor()
+
+cursor.execute("DROP TABLE IF EXISTS 11st01")
+cursor.execute("CREATE TABLE 11st01 (crawling_date text, market_name text, category_name text, raking int(10), product_name text, sales_price int, image_path text, sales_rate float(5,2))")
+execute()
+conn.commit()
+conn.close()

@@ -1,10 +1,22 @@
+import MySQLdb
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options # Chrome WebDriver의 옵션을 설정하는 모듈 Import
 from datetime import datetime
 from pprint import pprint
 import time
-
 from selenium.webdriver.common.by import By
+
+conn = MySQLdb.connect(
+    user="crawl_usr",
+    passwd="0809",
+    host="localhost",
+    db="crawl_data"
+)
+
+cursor = conn.cursor()
+
+cursor.execute("DROP TABLE IF EXISTS Gmarket01")
+cursor.execute("CREATE TABLE Gmarket01 (crawling_date text, market_name text, category_name text, raking int(10), product_name text, sales_price int, image_path text, sales_rate float(10))")
 
 url = 'https://www.11st.co.kr/browsing/BestSeller.tmall?method=getBestSellerMain'
 driver_path = '/usr/local/bin/chromedriver'
@@ -67,6 +79,8 @@ def crawler(cate):
         temp_dict['image_path'] = image
         temp_dict['sales_rate'] = '%.2f' % rate
 
+        cursor.execute(f"INSERT INTO books VALUES(\"{temp_dict['crawling_date']}\",\"{temp_dict['market_name']}\",\"{temp_dict['category_name']}\",\"{temp_dict['ranking']}\",\"{temp_dict['product_name']}\",\"{temp_dict['sales_price']}\",\"{temp_dict['image_path']}\",\"{temp_dict['sales_rate']}\")")
+        conn.commit()
         results.append(temp_dict.copy())
 
     return results
@@ -84,7 +98,10 @@ def execute():
         # print(f"resulst_list : {result_list}") # 카테고리별 리스트
         all_result.extend(result_list)
         scroll_up_to_category()
+        conn.close()
     return all_result
 
-all_results = execute()
-pprint(f"all_results : {all_results}")
+
+pprint(execute())
+
+

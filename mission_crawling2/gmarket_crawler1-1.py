@@ -1,3 +1,4 @@
+import MySQLdb
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options # Chrome WebDriver의 옵션을 설정하는 모듈 Import
 from bs4 import BeautifulSoup
@@ -17,21 +18,6 @@ chrome_options.add_argument("--start-maximized")
 driver = webdriver.Chrome( executable_path=driver_path, chrome_options=chrome_options )
 driver.get(url)
 
-# def scroll_down_to_end():
-#     check_body_height = 0
-#     while True:
-#         driver.execute_script("window.scrollTo(0, document.body.scrollHeight)") #맨끝까지
-#         time.sleep(0.5)
-#         body_height = driver.execute_script("return document.body.clientHeight;")
-#         # 스크롤이 사이트 마지막에 다다르면 while -> break
-#         if check_body_height == body_height:
-#             break
-#         check_body_height = body_height
-#         time.sleep(0.5)
-#
-# def scroll_up_to_category():
-#     driver.execute_script("window.scrollTo(0, -document.body.scrollHeight)")
-
 def crawler(cate, sub_cate):
     market_name = 'G마켓'
     crawling_date = datetime.today().strftime("%Y-%m-%d")
@@ -39,7 +25,6 @@ def crawler(cate, sub_cate):
     soup = BeautifulSoup(req, 'html.parser')
     elements = soup.select('#gBestWrap > div > div:nth-child(5) > div > ul > li')
     results = []
-    all_results=[]
     for el in elements:
         temp_dict = dict()
         cate = cate
@@ -65,8 +50,12 @@ def crawler(cate, sub_cate):
         temp_dict['ranking'] = ranking
         temp_dict['product_name'] = name
         temp_dict['sales_price'] = sales_price
-        temp_dict['image_path'] = image
+        temp_dict['image_path'] = 'https:'+ image
         temp_dict['sales_rate'] = '%.2f' % rate
+
+        print(temp_dict)
+        cursor.execute(f"INSERT INTO Gmarket01 VALUES(\"{temp_dict['crawling_date']}\",\"{temp_dict['market_name']}\",\"{temp_dict['category_name']}\",\"{temp_dict['sub_category_name']}\",\"{temp_dict['ranking']}\",\"{temp_dict['product_name']}\",\"{temp_dict['sales_price']}\",\"{temp_dict['image_path']}\",\"{temp_dict['sales_rate']}\")")
+
         results.append(temp_dict.copy())
 
     return results
@@ -100,8 +89,21 @@ def execute():
                     sub_category.click()  # 서브 카테고리 클릭하여 페이지 이동
                     result_list = crawler(cate, sub_cate)
                     all_result.extend(result_list)
-    print(all_result)
+    # print(all_result)
+
     return all_result
 
+conn = MySQLdb.connect(
+    user="crawl_usr",
+    passwd="0809",
+    host="localhost",
+    db="crawl_data"
+)
 
+cursor = conn.cursor()
+
+cursor.execute("DROP TABLE IF EXISTS Gmarket01")
+cursor.execute("CREATE TABLE Gmarket01 (crawling_date text, market_name text, category_name text, sub_category_name text, raking int(10), product_name text, sales_price int, image_path text, sales_rate float(5,2))")
 execute()
+conn.commit()
+conn.close()
