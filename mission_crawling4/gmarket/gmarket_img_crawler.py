@@ -132,7 +132,7 @@ def execute():
 def img_download():
     ssl._create_default_https_context = ssl._create_unverified_context
     for i in range(len(img_url_list)):
-        urllib.request.urlretrieve(img_url_list[i], "/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/gmarket/data/images/" + img_name_list[i])
+        urllib.request.urlretrieve(img_url_list[i], "/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/gmarket/data/images_bk/" + img_name_list[i])
 
 def transfer_image_to_ftp_server():
     today = datetime.today()
@@ -174,5 +174,5 @@ def transfer_image_to_ftp_server():
 # img_download()
 
 # transfer_image_to_ftp_server()
-# list = os.listdir('/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/gmarket/data/images/')
+# list = os.listdir('/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/gmarket/data/images_bk/')
 # print(len(list))

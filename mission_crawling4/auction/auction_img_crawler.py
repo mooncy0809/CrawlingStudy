@@ -147,9 +147,9 @@ def execute():
     return all_result
 
 def img_download():
-    ssl._create_default_https_context = ssl._create_unverified_context
+    ssl._create_default_https_context = ssl._create_unverified_context # ssl인증을 거쳐갈 임시의 context를 생성하여 해결
     for i in range(len(img_url_list)):
-        urllib.request.urlretrieve(img_url_list[i], "/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/auction/data/images/" + img_name_list[i])
+        urllib.request.urlretrieve(img_url_list[i], "/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/auction/data/images_bk/" + img_name_list[i])
 
 def transfer_image_to_ftp_server():
     today = datetime.today()
@@ -160,25 +160,26 @@ def transfer_image_to_ftp_server():
     username = "develop"
     password = "develop!2#"
     port = 22
-    cnopts = pysftp.CnOpts()
-    cnopts.hostkeys = None
+    cnopts = pysftp.CnOpts() # 서버에 저장되어 있는 모든 호스트키 정보를 불러옴
+    cnopts.hostkeys = None # cnopts.hostkeys를 None으로 설정해줌으로써 첫 접속을 가능하게 함
 
-    local_path = '/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/auction/data/images/'
-    remote_path = '/home/develop/test2/auction/'
-    list = os.listdir('/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/auction/data/images/')
+    local_path = '/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/auction/data/images/' # 로컬 이미지 파일위치
+    remote_path = '/home/develop/test2/auction/' # 원격지 저장 경로
+    list = os.listdir('/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/auction/data/images/') # 이미지 파일 목록 list에 저장
 
     try:
-        with pysftp.Connection(host, port=port, username=username, password=password, cnopts=cnopts) as sftp:
-            with sftp.cd(remote_path):
-                if date in sftp.listdir():
-                    sftp.cd(date)
+        with pysftp.Connection(host, port=port, username=username, password=password, cnopts=cnopts) as sftp: # 연결
+            with sftp.cd(remote_path): # 원격지 저장 경로 진입
+                if date in sftp.listdir(): # 경로 안에 date 폴더 있는지 확인
+                    sftp.cd(date) # 있다면 진입
                 else:
-                    sftp.mkdir(date)
+                    sftp.mkdir(date) # 없다면 date를 이름으로 폴더 생성
                     sftp.cd(remote_path + date + "/")
             for file_name in list:
-                sftp.put(local_path + file_name, remote_path + date + "/" + file_name)
+                sftp.put(local_path + file_name, remote_path + date + "/" + file_name) # list 이미지 파일 목록을 같은 이름으로 원격지에 저장
                 success_cnt += 1
-    except:
+    except Exception as e:
+        print(e)
         print(file_name)
     sftp.close()
     print(str(success_cnt) + ' 파일 전송 완료')

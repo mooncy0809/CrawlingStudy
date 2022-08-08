@@ -158,9 +158,9 @@ def transfer_image_to_ftp_server():
     cnopts = pysftp.CnOpts()
     cnopts.hostkeys = None
 
-    local_path = '/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/11st/data/images/'
+    local_path = '/11st/data/images_bk/'
     remote_path = '/home/develop/test2/11st/'
-    list = os.listdir('/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/11st/data/images/')
+    list = os.listdir('/11st/data/images_bk/')
 
     try:
         with pysftp.Connection(host, port=port, username=username, password=password, cnopts=cnopts) as sftp:
@@ -197,5 +197,5 @@ print(img_name_list)
 img_download()
 
 # transfer_image_to_ftp_server()
-# list = os.listdir('/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/auction/data/images/')
+# list = os.listdir('/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/auction/data/images_bk/')
 # print(len(list))
