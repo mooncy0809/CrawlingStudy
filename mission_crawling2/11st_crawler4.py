@@ -76,32 +76,29 @@ def crawler(cate,sub_cate):
     return results
 
 def execute():
-    category_lists = driver.find_elements(By.XPATH, "//div[@class='best_category_box']/ul/li/button")
     all_result = []
-    for button_index in range(len(category_lists)):
-        category = driver.find_element_by_xpath('//*[@id="metaCtgrLi' + str(button_index) + '"]/button') # 카테고리 find
+    category_lists = driver.find_elements(By.XPATH, "//div[@class='best_category_box']/ul/li/button")
+    for category in category_lists:
+        category_index = category_lists.index(category)
         cate = category.text
         sub_cate = "전체"
-        category.click() # 카테고리 클릭하여 페이지 이동
-        time.sleep(1)
+        driver.execute_script("arguments[0].click();", category) # 카테고리 클릭하여 페이지 이동
+        time.sleep(2)
         scroll_down_to_end()
         result_list = crawler(cate,sub_cate)
         all_result.extend(result_list)
         scroll_up_to_category()
-        if button_index == 0:
+        if category_index == 0:
             pass
         else:
-            sub_category_lists = driver.find_elements_by_xpath('//*[@id="metaCtgrLi' + str(button_index) + '"]/div/ul/li/a')
-            for a_index in range(1,len(sub_category_lists)+1):
-                sub_category = driver.find_element_by_xpath('//*[@id="metaCtgrLi' + str(button_index) + '"]/div/ul/li['+str(a_index)+']/a') # 서브 카테고리
+            sub_category_lists = driver.find_elements_by_xpath('//*[@id="metaCtgrLi' + str(category_index) + '"]/div/ul/li/a')
+            for sub_category in sub_category_lists:
                 sub_cate = sub_category.text
-                sub_category.click() # 서브 카테고리 클릭하여 페이지 이동
-                time.sleep(1)
+                driver.execute_script("arguments[0].click();", sub_category) # 서브 카테고리 클릭하여 페이지 이동
                 scroll_down_to_end()
                 result_list = crawler(cate,sub_cate)
                 all_result.extend(result_list)
                 scroll_up_to_category()
-
         # pprint(f"resulst_list : {result_list}")  # 카테고리별 리스트
     return all_result
 

@@ -1,3 +1,4 @@
+import MySQLdb
 from selenium import webdriver
 from datetime import datetime
 import time
@@ -17,7 +18,6 @@ class Common:
 
 
     def get_url(self):
-        print(self.url)
         return self.url
 
     def set_driver(self,driver):
@@ -55,7 +55,7 @@ class Common:
         temp_dict['discount_price'] = discount_price
         temp_dict['discount_rate'] = rate
         temp_dict['image_name'] = category_code1 + '_' + category_code2 + '_' + ranking + '.jpg'
-        temp_dict['image_path'] = 'https:' + image
+        temp_dict['image_path'] = image
         temp_dict['real_path'] = real_path
 
         return temp_dict
@@ -77,12 +77,30 @@ class Common:
         driver = self.get_driver()
         driver.execute_script("window.scrollTo(0, -document.body.scrollHeight)")
 
-    def img_download(self):
+    def db_connect(self):
+        conn = MySQLdb.connect(
+            user="kiesrnd",
+            passwd="kiesrnd!@#",
+            host="192.168.116.173",
+            port=3307,
+            db="TEST"
+        )
+        return conn
+
+    def insert_db(self,temp_dict, table_name):
+        conn = self.db_connect()
+        cursor = conn.cursor()
+        cursor.execute(f"INSERT INTO {table_name}(crawling_date,ranking,category_code1,category_code2, category_name1, category_name2, product_name, sales_price, discount_price, discount_rate, image_name, image_path, real_path,insert_userid, insert_time) \
+            VALUES(\"{temp_dict['crawling_date']}\",\"{temp_dict['ranking']}\",\"{temp_dict['category_code1']}\",\"{temp_dict['category_code2']}\",\"{temp_dict['category_name1']}\",\"{temp_dict['category_name2']}\",\
+            \"{temp_dict['product_name']}\",\"{temp_dict['sales_price']}\",\"{temp_dict['discount_price']}\",\"{temp_dict['discount_rate']}\",\"{temp_dict['image_name']}\",\"{temp_dict['image_path']}\",\"{temp_dict['real_path']}\",\"{'admin'}\",NOW())")
+        conn.commit()
+
+    def img_download(self,img_path):
         ssl._create_default_https_context = ssl._create_unverified_context
         for i in range(len(self.img_url_list)):
-            urllib.request.urlretrieve(self.img_url_list[i], "/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/gmarket/data/images_bk/" + self.img_name_list[i])
+            urllib.request.urlretrieve(self.img_url_list[i], img_path + self.img_name_list[i])
 
-    def transfer_image_to_ftp_server(self):
+    def transfer_image_to_ftp_server(self,local_path,remote_path):
         today = datetime.today()
         date = today.isoformat()[0:10]
         success_cnt = 0
@@ -94,9 +112,9 @@ class Common:
         cnopts = pysftp.CnOpts()
         cnopts.hostkeys = None
 
-        local_path = '/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/gmarket/data/images/'
-        remote_path = '/home/develop/test2/gmarket/'
-        list = os.listdir('/Users/mcy/PycharmProjects/CrawlingStudy/mission_crawling4/gmarket/data/images/')
+        local_path = local_path
+        remote_path = remote_path
+        list = os.listdir(local_path)
 
         try:
             with pysftp.Connection(host, port=port, username=username, password=password, cnopts=cnopts) as sftp:
