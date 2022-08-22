@@ -15,11 +15,6 @@ class Crawler(Common):
         elements = soup.select(product_list)
         return elements
 
-    def find_second_products_list(self,elements):
-        element = BeautifulSoup(elements, 'html.parser')
-        elements_2 = element.select('li')
-        return elements_2
-
     def find_first_category_elements(self, category_xpath):
         driver = self.get_driver()
         category_list = driver.find_elements_by_xpath(category_xpath)
@@ -212,5 +207,9 @@ class Crawler(Common):
 if __name__ == '__main__':
     crawler = Crawler()
     market_options = get_market_options()
+    target = ['auction','11st'] # 크롤링 하고싶은 타깃마켓
     for market in market_options:
-        crawler.execute(market)
+            if market['market_name'] in target: # 마켓 리스트에 타깃 마켓이 있으면 execute실행
+                crawler.execute(market)
+            else :
+                pass

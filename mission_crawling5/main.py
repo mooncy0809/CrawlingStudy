@@ -96,6 +96,9 @@ class Common:
         conn.commit()
 
     def img_download(self,img_path):
+        print("이미지 다운로드 시작")
+        print(self.img_url_list)
+        print(self.img_name_list)
         ssl._create_default_https_context = ssl._create_unverified_context
         for i in range(len(self.img_url_list)):
             urllib.request.urlretrieve(self.img_url_list[i], img_path + self.img_name_list[i])
@@ -118,6 +121,7 @@ class Common:
 
         try:
             with pysftp.Connection(host, port=port, username=username, password=password, cnopts=cnopts) as sftp:
+                print('ftp 서버연결 성공')
                 with sftp.cd(remote_path):
                     if date in sftp.listdir():
                         sftp.cd(date)
